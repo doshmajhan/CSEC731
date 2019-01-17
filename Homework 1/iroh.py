@@ -9,39 +9,47 @@
 
 import argparse
 import sys
+import errors
+from coffee_request import CoffeeRequest
 
 CRLF = "\r\n"
 VALID_SERVER_TYPES = ["teapot", "coffee-pot"]
 
 
-def parse_request_line(request_line):
-    """
-    Parses the request line of the recieved request to ensure if fits the format
-
-    Parameters:
-        request_line (string): the request line taken from the recieved request
-    
-    Returns:
-    """
-    pass
-
-def parse_request(server_type, request):
+def parse_request(server_type, request_string):
     """
     Parses a HTCPCP-TEA request
 
     Parameters:
         server_type (string): the type of server, either teapot or coffee-pot
-        request (string): the contents of the request
+        request_string (string): the contents of the request
 
     Returns:
         response (string): A reponse string in the proper format 
     """
     response = ""
-    print(request)
-    request_line = request[0]
-    headers = request[:-1]
+    request_headers, request_body = request_string.split("\n\n")
+    request_headers = request_headers.split("\n")
+    request_line = request_headers[0]
+    headers = request_headers[1:]
 
-    parse_request_line(request_line)
+    print(request_line)
+    print(headers)
+    print(request_body)
+
+    parts = request_line.split()
+    if len(parts) != 3:
+        raise errors.InvalidRequestLine
+
+
+    request = CoffeeRequest(
+        method=parts[0], 
+        uri=parts[1], 
+        version=parts[2], 
+        headers=headers, 
+        body=request_body
+    )
+
     return response
 
 
@@ -59,8 +67,7 @@ if __name__ == '__main__':
         sys.exit()
     
     with open(file) as f:
-        request = [x.replace("\n", "") for x in f.readlines()]
+        request = f.read()
     
     response = parse_request(server_type, request)
     print(response)
-

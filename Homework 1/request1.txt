@@ -1,5 +1,5 @@
 BREW / HTCPCP/1.0
-Content-Type: application/coffee-pot-command
+Content-Type:application/coffee-pot-command
 Accept-Additions: *
 
 start
