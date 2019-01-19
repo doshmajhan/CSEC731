@@ -30,11 +30,7 @@ def parse_request(request_string):
     request_line = request_headers[0]
     headers = request_headers[1:]
 
-    parts = request_line.split()
-    if len(parts) != 3:
-        raise errors.InvalidRequestLine
-
-    return HTCPCPRequest(method=parts[0], uri=parts[1], version=parts[2], headers=headers, body=request_body)
+    return HTCPCPRequest(request_line, headers, request_body)
 
 
 def handle_request(request_string):
@@ -54,6 +50,11 @@ def handle_request(request_string):
     except errors.HTCPCPException as e:
         print(e.message)
         response = HTCPCPResponse(e.code, e.reason_phrase)
+        return response
+
+    except Exception as e:
+        print(e.message)
+        response = HTCPCPResponse(400, "Bad Request")
         return response
 
     if request.uri == "/":

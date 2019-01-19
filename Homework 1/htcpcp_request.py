@@ -21,14 +21,24 @@ class HTCPCPRequest(object):
     Class to hold a HTCPCP request
     """
 
-    def __init__(self, method=None, uri=None, version=None, headers=None, body=None):
+    def __init__(self, request_line, headers, body):
+        self.validate_request_line(request_line)
+        self.headers = self.validate_headers(headers)
+        self.body = body
+
+    def validate_request_line(self, request_line):
+
+        try:
+            method, uri, version = request_line.split()
+        except ValueError:
+            raise errors.InvalidURI
+
         self.method = self.validate_method(method)
         self.uri = self.validate_uri(uri)
         self.version = self.validate_version(version)
-        self.headers = self.validate_headers(headers)
 
     def validate_method(self, method):
-        
+
         if method not in VALID_METHODS:
             raise errors.UnsupportedMethod
 
