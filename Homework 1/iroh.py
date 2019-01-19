@@ -9,7 +9,7 @@
 
 import argparse
 import errors
-from htcpcp_request import HTCPCPRequest
+from htcpcp_request import HTCPCPRequest, VALID_TEA_TYPES
 from htcpcp_response import HTCPCPResponse
 
 CRLF = "\r\n"
@@ -48,7 +48,6 @@ def handle_request(request_string):
         request = parse_request(request_string)
 
     except errors.HTCPCPException as e:
-        print(e.message)
         response = HTCPCPResponse(e.code, e.reason_phrase)
         return response
 
@@ -58,15 +57,11 @@ def handle_request(request_string):
         return response
 
     if request.uri == "/":
-        response_code = 300
-        reason_phrase = "Multiple Choices"
+        alternates = ', '.join("{{\"/{}\" {{type message/teapot}}}}".format(tea) for tea in VALID_TEA_TYPES)
+        headers = ["Alternates: {}".format(alternates)]
+        return HTCPCPResponse(300, "Multiple Choices", response_headers=headers)
     else:
-        response_code = 200
-        reason_phrase = "OK"
-
-    response = HTCPCPResponse(response_code, reason_phrase)
-
-    return response
+        return HTCPCPResponse(200, "OK")
 
 
 if __name__ == '__main__':

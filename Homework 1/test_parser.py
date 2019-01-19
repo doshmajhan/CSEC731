@@ -13,4 +13,5 @@ def test_parser():
         print(request)
         expected_code = int(request.replace("request", "").split("-")[0])
         response = iroh.handle_request(request_string)
+        print(response)
         assert expected_code == response.response_code
