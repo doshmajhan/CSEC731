@@ -10,6 +10,7 @@
 import argparse
 import errors
 from htcpcp_request import HTCPCPRequest
+from htcpcp_response import HTCPCPResponse
 
 CRLF = "\r\n"
 
@@ -22,9 +23,8 @@ def parse_request(request_string):
         request_string (string): the contents of the request
 
     Returns:
-        response (string): A reponse string in the proper format 
+        request (HTCPCP): A parsed and validated HTCPCPRequest 
     """
-    response = ""
     request_headers, request_body = request_string.split("\n\n")
     request_headers = request_headers.split("\n")
     request_line = request_headers[0]
@@ -34,23 +34,36 @@ def parse_request(request_string):
     if len(parts) != 3:
         raise errors.InvalidRequestLine
 
-    # TODO HANDLE / URI
-    
+    return HTCPCPRequest(method=parts[0], uri=parts[1], version=parts[2], headers=headers, body=request_body)
+
+
+def handle_request(request_string):
+    """
+    Handles a HTCPCP request and returns the proper response
+
+    Parameters:
+        request_string (string): the HTCPCP request in string format
+
+    Returns:
+        response (HTCPCPResponse): a HTCPCP response object
+    """
+
     try:
-        request = HTCPCPRequest(
-            method=parts[0], 
-            uri=parts[1], 
-            version=parts[2], 
-            headers=headers, 
-            body=request_body
-        )
+        request = parse_request(request_string)
 
     except errors.HTCPCPException as e:
         print(e.message)
-        response = e.code
+        response = HTCPCPResponse(e.code, e.reason_phrase)
+        return response
 
+    if request.uri == "/":
+        response_code = 300
+        reason_phrase = "Multiple Choices"
     else:
-        response = 200
+        response_code = 200
+        reason_phrase = "OK"
+
+    response = HTCPCPResponse(response_code, reason_phrase)
 
     return response
 
@@ -65,5 +78,5 @@ if __name__ == '__main__':
     with open(file) as f:
         request = f.read()
     
-    response = parse_request(request)
+    response = handle_request(request)
     print(response)

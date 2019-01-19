@@ -26,7 +26,7 @@ class HTCPCPRequest(object):
         self.uri = self.validate_uri(uri)
         self.version = self.validate_version(version)
         self.headers = self.validate_headers(headers)
-    
+
     def validate_method(self, method):
         
         if method not in VALID_METHODS:
@@ -102,7 +102,9 @@ class HTCPCPRequest(object):
         return header_dict
     
     def validate_content_type(self, content_type):
-        if content_type != VALID_CONTENT_TYPES[self.type]:
+        if self.uri == "/":
+            pass
+        elif content_type != VALID_CONTENT_TYPES[self.type]:
             raise errors.InvalidContentType
         
         return content_type
