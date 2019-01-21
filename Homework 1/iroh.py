@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-    File to take in a parse a HTCPCP-TEA request and provide the appropriate source
+    File to take in a parse a HTCPCP-TEA request and provide the appropriate response
 
     Author: Cameron Clark
     Created: 1/15/19

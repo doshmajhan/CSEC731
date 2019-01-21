@@ -1,4 +1,13 @@
 class HTCPCPResponse(object):
+    """
+    Class to represent a response for the HTCPCP protocol
+
+    Attributes:
+        response_code (int): the HTTP response code
+        reasone_phrase (string): the reason for the response (ex: Forbidden)
+        response_headers (list): a list of header strings to include in the response
+        response_body (string): the response body
+    """
     CRLF = "\r\n"
     VERSION = "HTCPCP-TEA/1.0"
 
@@ -9,6 +18,7 @@ class HTCPCPResponse(object):
         self.response_body = response_body
 
     def __str__(self):
+        """The output if someone was to print an instance of this class"""
         # add status line
         response_string = "{} {} {}{}".format(self.VERSION, self.response_code, self.reason_phrase, self.CRLF)
 
