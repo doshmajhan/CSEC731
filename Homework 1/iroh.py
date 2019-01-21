@@ -12,7 +12,7 @@ import errors
 from htcpcp_request import HTCPCPRequest, VALID_TEA_TYPES
 from htcpcp_response import HTCPCPResponse
 
-CRLF = "\n"
+CRLF = "\r\n"
 
 
 def parse_request(request_string):
