@@ -65,8 +65,8 @@ def handle_request(request_string):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Parses a HTCPCP-TEA request and provide the appropriate source', add_help=True)
-    parser.add_argument('-f', dest='file', help='The file containing the HTCPCP request', required=True)
+    parser = argparse.ArgumentParser(description='Parses a HTCPCP-TEA request and provide the appropriate response', add_help=True)
+    parser.add_argument('-f', dest='file', help='The file containing the HTCPCP-TEA request', required=True)
     args = parser.parse_args()
 
     file = args.file
