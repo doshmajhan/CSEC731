@@ -54,3 +54,9 @@ class UnsupportedMethod(HTCPCPException):
         self.message = "Unsupported method"
         self.code = 403
         self.reason_phrase = "Forbidden"
+
+class ImATeapotError(HTCPCPException):
+    def __init__(self):
+        self.message = "I'm a teapot"
+        self.code = 418
+        self.reason_phrase = "I'm a teapot"

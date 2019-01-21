@@ -8,7 +8,7 @@ VALID_CONTENT_TYPES = {
 }
 VALID_ADDITIONS = [
     "cream", "half-and-half", "whole-milk", 
-    "part-skim", "skim", "non-dairy",
+    "part-Skim", "skim", "non-Dairy",
     "vanilla", "almond", "raspberry",
     "chocolate", "whisky", "rum",
     "kahlua", "aquavit", "sugar",
@@ -115,13 +115,16 @@ class HTCPCPRequest(object):
         if self.uri == "/":
             pass
         elif content_type != VALID_CONTENT_TYPES[self.type]:
+            if self.type == "tea" and content_type == VALID_CONTENT_TYPES["coffee"]:
+                raise errors.ImATeapotError
+
             raise errors.InvalidContentType
         
         return content_type
 
     def validate_additions(self, additions):
         for a in additions:
-            if a not in VALID_ADDITIONS:
+            if a.lower() not in VALID_ADDITIONS:
                 raise errors.UnsupportedAdditions
 
         self.additions = additions

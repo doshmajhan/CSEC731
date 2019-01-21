@@ -1,3 +1,0 @@
-GET /pot-1?cream HTCPCP-TEA/1.0
-Content-Type: message/teapot
-

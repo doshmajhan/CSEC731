@@ -1,4 +1,4 @@
 BREW /pot-3/black HTCPCP-TEA/1.0
-Content-Type: message/teapot
+Content-Type: message/coffee-pot-command
 Accept-Additions: Cream
 

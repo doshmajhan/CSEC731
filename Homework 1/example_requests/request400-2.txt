@@ -1,4 +1,3 @@
-BREW /pot-3/black HTCPCP-TEA/1.0
-Content-Type: text
-Accept-Additions: cream
+GET /pot-1?cream HTCPCP-TEA/1.0
+Content-Type: message/teapot
 
