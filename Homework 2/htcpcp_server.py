@@ -2,6 +2,7 @@ import logging
 import socket
 import sys
 import threading
+from collections import Counter
 import errors
 from htcpcp_request import HTCPCPRequest, VALID_TEA_TYPES
 from htcpcp_response import HTCPCPResponse
@@ -104,13 +105,16 @@ class HTCPCPServer(object):
 
         if not pot:
             raise errors.BrewNotStarted
-
+        
         if request.type != pot.pot_type:
             if pot.pot_type == "tea":
                 raise errors.ImATeapotError
             else:
                 raise errors.InvalidContentType
 
+        if Counter(request.additions) != Counter(pot.additions):
+            raise errors.UnsupportedAdditions
+        
         response_headers = dict()
         response_headers["Content-Type"] = request.headers["Content-Type"]
         return HTCPCPResponse(200, "OK")

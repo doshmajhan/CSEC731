@@ -12,6 +12,8 @@ PORT = 9999
 def test_parser():
     example_requests = [f for f in listdir(EXAMPLE_REQUESTS_DIR) if isfile(join(EXAMPLE_REQUESTS_DIR, f))]
     for request in example_requests:
+        expected_code = int(request.replace("request", "").split("-")[0])
+        
         with open(join(EXAMPLE_REQUESTS_DIR, request)) as f:
             request_string = f.read().replace("\n", "\r\n")
         
@@ -23,4 +25,10 @@ def test_parser():
         s.shutdown(1)
         s.close()
 
-        assert True
+        response_headers, response_body = data.split(CRLF)
+        status_line = response_headers.split(CRLF, 1)
+        response_headers = response_headers[1:].split(CRLF)
+
+        version, status_code, reason = status_line.split()
+
+        assert int(status_code) == expected_code
