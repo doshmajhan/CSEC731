@@ -91,7 +91,7 @@ class HTCPCPRequest(object):
         
         parts = uri.split("/")
         pot = parts[1]
-        self.pot_number = self.validate_pot(pot)
+        self.pot_designator = self.validate_pot(pot)
 
         if len(parts) > 2:
             self.type = "tea"
@@ -112,7 +112,7 @@ class HTCPCPRequest(object):
             pot_designator (string): the post designator contained within the URI
 
         Returns:
-            pot_number (int): the pot number contained within the designator
+            pot_designator (string): the validated post designator contained within the URI
         """
         if pot_designator.count("-") != 1:
             raise errors.InvalidURI
@@ -126,7 +126,7 @@ class HTCPCPRequest(object):
         except ValueError:
             raise errors.InvalidURI
         
-        return pot_number
+        return pot_designator
 
     def validate_version(self, version):
         """

@@ -78,10 +78,10 @@ class HTCPCPServer(object):
         """
         
         if request.type == "coffee":
-            pot = CoffeePot(request.pot_number, request.uri, request.additions)
+            pot = CoffeePot(request.pot_designator, request.additions)
 
         else:
-            pot = TeaPot(request.pot_number, request.uri, request.additions)
+            pot = TeaPot(request.pot_designator, request.additions, request.tea_type)
         
         self.brewing_pots.append(pot)
 
@@ -100,11 +100,16 @@ class HTCPCPServer(object):
         Returns:
             response (HTCPCPResponse): the response appriotate for the request
         """
-        pot = next((p for p in self.brewing_pots if p.uri == request.uri), None)
+        pot = next((p for p in self.brewing_pots if str(p) == request.uri), None)
 
         if not pot:
             raise errors.BrewNotStarted
 
+        if request.type != pot.pot_type:
+            if pot.pot_type == "tea":
+                raise errors.ImATeapotError
+            else:
+                raise errors.InvalidContentType
 
         response_headers = dict()
         response_headers["Content-Type"] = request.headers["Content-Type"]
@@ -151,6 +156,6 @@ class HTCPCPServer(object):
             conn.sendall(str(response))
             return
         
-        # request complete successfully, return and log
-        conn.sendall(str(response))
+        # request complete successfully, log and return
         logging.info(request.request_line)
+        conn.sendall(str(response))

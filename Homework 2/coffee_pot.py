@@ -7,16 +7,15 @@ import errors
 class CoffeePot(object):
     """Represents a coffee pot"""
 
-    def __init__(self, pot_number, uri, additions):
-        self.pot_number = pot_number
-        self.uri = uri
+    pot_type = "coffee"
+
+    def __init__(self, pot_designator, additions):
+        self.pot_designator = pot_designator
         self.additions = additions
-        self.type = "coffee"
     
     def create_pot_file(self):
         """Creates the file of the json description, raising an error if the file already exists"""
-        # trim off the leading slash
-        coffee_file = Path(self.uri[1:])
+        coffee_file = Path(self.pot_designator)
 
         if coffee_file.exists():
             raise errors.PotExists
@@ -36,3 +35,5 @@ class CoffeePot(object):
         
         return coffee_dict
         
+    def __str__(self):
+        return "/{}".format(self.pot_designator)
