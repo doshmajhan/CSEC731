@@ -9,6 +9,7 @@ from htcpcp_response import HTCPCPResponse
 from coffee_pot import CoffeePot
 from tea_pot import TeaPot
 
+
 CRLF = "\r\n"
 
 
@@ -37,6 +38,7 @@ class HTCPCPServer(object):
             #Accept request and start a new thread
             conn, addr = self.sock.accept()
             request = conn.recv(8192)
+            request = request.decode()
 
             print("Request recieved from {}".format(addr))
             request_handler = threading.Thread(target=self.handle_request, args=(request, conn))
@@ -132,20 +134,23 @@ class HTCPCPServer(object):
             request = self.parse_request(request_string)
 
         except errors.HTCPCPException as e:
+            print(e.message)
             response = HTCPCPResponse(e.code, e.reason_phrase)
-            conn.sendall(str(response))
+            conn.sendall(str(response).encode())
             return
 
         except Exception as e:
+            print(e)
             response = HTCPCPResponse(400, "Bad Request")
-            conn.sendall(str(response))
+            conn.sendall(str(response).encode())
             return
 
         if request.uri == "/":
             alternates = ', '.join("{{\"/{}\" {{type message/teapot}}}}".format(tea) for tea in VALID_TEA_TYPES)
-            headers = ["Alternates: {}".format(alternates)]
-            response = HTCPCPResponse(300, "Multiple Choices", response_headers=headers)
-            conn.sendall(str(response))
+            response_headers = dict()
+            response_headers["Alternates"] = alternates
+            response = HTCPCPResponse(300, "Multiple Choices", response_headers=response_headers)
+            conn.sendall(str(response).encode())
             return
         
         try:
@@ -156,10 +161,11 @@ class HTCPCPServer(object):
                 response = self.handle_get(request)
         
         except errors.HTCPCPException as e:
+            print(e.message)
             response = HTCPCPResponse(e.code, e.reason_phrase)
-            conn.sendall(str(response))
+            conn.sendall(str(response).encode())
             return
         
         # request complete successfully, log and return
         logging.info(request.request_line)
-        conn.sendall(str(response))
+        conn.sendall(str(response).encode())

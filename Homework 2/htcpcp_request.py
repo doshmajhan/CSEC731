@@ -27,6 +27,7 @@ class HTCPCPRequest(object):
     """
 
     def __init__(self, request_line, headers, body):
+        self.additions = list()
         self.validate_request_line(request_line)
         self.headers = self.validate_headers(headers)
         self.body = body
@@ -182,8 +183,11 @@ class HTCPCPRequest(object):
             content_type (string): the validated content type
         """
         if self.uri == "/":
-            pass
-        elif content_type != VALID_CONTENT_TYPES[self.type]:
+            return content_type
+
+        if content_type != VALID_CONTENT_TYPES[self.type]:
+            print(content_type)
+            print(self.type)
             if self.type == "tea" and content_type == VALID_CONTENT_TYPES["coffee"]:
                 raise errors.ImATeapotError
 
@@ -205,6 +209,7 @@ class HTCPCPRequest(object):
         for a in additions:
             if a.lower() not in VALID_ADDITIONS:
                 raise errors.UnsupportedAdditions
-
-        self.additions = additions
+            
+            self.additions.append(a)
+        
         return additions

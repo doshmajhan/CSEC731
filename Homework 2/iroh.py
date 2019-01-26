@@ -12,7 +12,7 @@ import logging
 from htcpcp_server import HTCPCPServer
 
 LOG_FILE = "server.log"
-logging.basicConfig(filenanme=LOG_FILE,level=logging.DEBUG)
+logging.basicConfig(filename=LOG_FILE, level=logging.DEBUG)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Starts a HTCPCP-TEA server on the given address and port', add_help=True)

@@ -12,6 +12,7 @@ class CoffeePot(object):
     def __init__(self, pot_designator, additions):
         self.pot_designator = pot_designator
         self.additions = additions
+        self.create_pot_file()
     
     def create_pot_file(self):
         """Creates the file of the json description, raising an error if the file already exists"""
@@ -20,8 +21,8 @@ class CoffeePot(object):
         if coffee_file.exists():
             raise errors.PotExists
         
-        with coffee_file.open() as f:
-            json.dump(self.as_dict(), f)
+        with coffee_file.open(mode='w') as f:
+            json.dump(self.as_dict(), f, indent=4)
 
 
     def as_dict(self):

@@ -5,13 +5,13 @@ class HTCPCPResponse(object):
     Attributes:
         response_code (int): the HTTP response code
         reasone_phrase (string): the reason for the response (ex: Forbidden)
-        response_headers (list): a list of header strings to include in the response
+        response_headers (dict): a dictionary of header names and values to include in the response
         response_body (string): the response body
     """
     CRLF = "\r\n"
     VERSION = "HTCPCP-TEA/1.0"
 
-    def __init__(self, response_code, reason_phrase, response_headers=[], response_body=""):
+    def __init__(self, response_code, reason_phrase, response_headers=dict(), response_body=""):
         self.response_code = response_code
         self.reason_phrase = reason_phrase
         self.response_headers = response_headers
@@ -23,8 +23,8 @@ class HTCPCPResponse(object):
         response_string = "{} {} {}{}".format(self.VERSION, self.response_code, self.reason_phrase, self.CRLF)
 
         # add response headers if any
-        for header in self.response_headers:
-            response_string += "{}{}".format(header, self.CRLF)
+        for header, value in self.response_headers.items():
+            response_string += "{}: {}{}".format(header, value, self.CRLF)
         
         # add body if one
         response_string += "{}{}".format(self.CRLF, self.response_body)

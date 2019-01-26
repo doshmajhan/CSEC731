@@ -11,23 +11,24 @@ class TeaPot(object):
         self.pot_designator = pot_designator
         self.additions = additions
         self.tea_type = tea_type
+        self.create_pot_file()
 
     
     def create_pot_file(self):
         """Creates the file of the json description, raising an error if the file already exists"""
-        # trim off the leading slash
         tea_file = Path("{}/{}".format(self.pot_designator, self.tea_type))
+        tea_directory = Path(self.pot_designator)
 
         if tea_file.exists():
             raise errors.PotExists
         
         try:
-            tea_file.mkdir(parents=True)
+            tea_directory.mkdir()
         except FileExistsError:
             raise errors.PotExists
         
-        with tea_file.open() as f:
-            json.dump(self.as_dict(), f)
+        with tea_file.open(mode='w') as f:
+            json.dump(self.as_dict(), f, indent=4)
 
 
     def as_dict(self):
