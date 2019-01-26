@@ -119,7 +119,7 @@ class HTCPCPServer(object):
         
         response_headers = dict()
         response_headers["Content-Type"] = request.headers["Content-Type"]
-        return HTCPCPResponse(200, "OK")
+        return HTCPCPResponse(200, "OK", response_headers=response_headers)
 
     def handle_request(self, request_string, conn):
         """

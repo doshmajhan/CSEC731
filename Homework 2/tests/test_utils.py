@@ -38,17 +38,20 @@ def parse_response(response):
     Returns:
         response (HTCPCPResponse): the HTCPCPResponse object
     """
-    response_headers, response_body = response.split(CRLF + CRLF)
-    status_line, response_headers = response_headers.split(CRLF, 1)
-    response_headers = response_headers.split(CRLF)
-    print(response_headers)
     headers_dict = dict()
+    response_headers, response_body = response.split(CRLF + CRLF)
+    
+    try:
+        status_line, response_headers = response_headers.split(CRLF, 1)
+        response_headers = response_headers.split(CRLF)
 
-    for header in response_headers:
-        print(header)
-        name, value = header.split(":")
-        # trim leading whitespace
-        headers_dict[name] = value[1:]
+        for header in response_headers:
+            name, value = header.split(":")
+            # trim leading whitespace
+            headers_dict[name] = value[1:]
+    
+    except ValueError:
+        status_line = response_headers
     
     status_line = status_line.split()
     status_code = int(status_line[1])
