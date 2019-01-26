@@ -1,9 +1,12 @@
+import logging
 import socket
 import sys
 import threading
 import errors
 from htcpcp_request import HTCPCPRequest, VALID_TEA_TYPES
 from htcpcp_response import HTCPCPResponse
+from coffee_pot import CoffeePot
+from tea_pot import TeaPot
 
 CRLF = "\r\n"
 
@@ -21,8 +24,7 @@ class HTCPCPServer(object):
     def __init__(self, address, port):
         self.address = address
         self.port = port
-
-    
+        self.brewing_pots = list()
 
     def start(self):
         print("Starting listener on {}:{}".format(self.address, self.port))
@@ -46,7 +48,6 @@ class HTCPCPServer(object):
                 self.sock.close()
                 sys.exit()
 
-
     def parse_request(self, request_string):
         """
         Parses a HTCPCP-TEA request
@@ -56,7 +57,7 @@ class HTCPCPServer(object):
             addr (tuple): a tuple containing the address and port the request came from
 
         Returns:
-            request (HTCPCP): A parsed and validated HTCPCPRequest 
+            request (HTCPCPRequest): A parsed and validated HTCPCPRequest 
         """
         request_headers, request_body = request_string.split(CRLF + CRLF)
         request_headers = request_headers.split(CRLF)
@@ -65,6 +66,49 @@ class HTCPCPServer(object):
 
         return HTCPCPRequest(request_line, headers, request_body)
 
+    def handle_brew(self, request):
+        """
+        Handles the specifics of a brew request
+
+        Parameters:
+            request (HTPCPRequest): the recieved request
+
+        Returns:
+            response (HTCPCPResponse): the response appriotate for the request
+        """
+        
+        if request.type == "coffee":
+            pot = CoffeePot(request.pot_number, request.uri, request.additions)
+
+        else:
+            pot = TeaPot(request.pot_number, request.uri, request.additions)
+        
+        self.brewing_pots.append(pot)
+
+        response_headers = dict()
+        response_headers["Content-Type"] = request.headers["Content-Type"]
+        return HTCPCPResponse(200, "OK", response_headers=response_headers)
+
+
+    def handle_get(self, request):
+        """
+        Gets information for a specific pot if it exists and the request matches
+        
+        Parameters:
+            request (HTPCPRequest): the recieved request
+
+        Returns:
+            response (HTCPCPResponse): the response appriotate for the request
+        """
+        pot = next((p for p in self.brewing_pots if p.uri == request.uri), None)
+
+        if not pot:
+            raise errors.BrewNotStarted
+
+
+        response_headers = dict()
+        response_headers["Content-Type"] = request.headers["Content-Type"]
+        return HTCPCPResponse(200, "OK")
 
     def handle_request(self, request_string, conn):
         """
@@ -84,7 +128,6 @@ class HTCPCPServer(object):
             return
 
         except Exception as e:
-            print(e.message)
             response = HTCPCPResponse(400, "Bad Request")
             conn.sendall(str(response))
             return
@@ -93,8 +136,21 @@ class HTCPCPServer(object):
             alternates = ', '.join("{{\"/{}\" {{type message/teapot}}}}".format(tea) for tea in VALID_TEA_TYPES)
             headers = ["Alternates: {}".format(alternates)]
             response = HTCPCPResponse(300, "Multiple Choices", response_headers=headers)
-        else:
-            response = HTCPCPResponse(200, "OK")
+            conn.sendall(str(response))
+            return
         
+        try:
+            if request.method == "BREW":
+                response = self.handle_brew(request)
 
+            elif request.method == "GET":
+                response = self.handle_get(request)
+        
+        except errors.HTCPCPException as e:
+            response = HTCPCPResponse(e.code, e.reason_phrase)
+            conn.sendall(str(response))
+            return
+        
+        # request complete successfully, return and log
         conn.sendall(str(response))
+        logging.info(request.request_line)
