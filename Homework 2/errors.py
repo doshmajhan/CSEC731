@@ -51,9 +51,9 @@ class UnsupportedAdditions(HTCPCPException):
 
 class UnsupportedMethod(HTCPCPException):
     def __init__(self):
-        self.message = "Unsupported method"
-        self.code = 403
-        self.reason_phrase = "Forbidden"
+        self.message = "Unsupported Method"
+        self.code = 405
+        self.reason_phrase = "Method Not Allowed"
 
 class ImATeapotError(HTCPCPException):
     def __init__(self):

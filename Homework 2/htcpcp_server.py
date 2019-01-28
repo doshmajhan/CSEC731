@@ -41,8 +41,8 @@ class HTCPCPServer(object):
             request = request.decode()
 
             print("Request recieved from {}".format(addr))
-            request_handler = threading.Thread(target=self.handle_request, args=(request, conn))
-            request_handler.daemon=True
+            request_handler = threading.Thread(target=self.connection_handler, args=(request, conn))
+            request_handler.daemon = True
 
             try:
                 request_handler.start()
@@ -121,13 +121,15 @@ class HTCPCPServer(object):
         response_headers["Content-Type"] = request.headers["Content-Type"]
         return HTCPCPResponse(200, "OK", response_headers=response_headers)
 
-    def handle_request(self, request_string, conn):
+    def handle_request(self, request_string):
         """
         Handles a HTCPCP request and returns the proper response
 
         Parameters:
             request_string (string): the HTCPCP request in string format
-            conn (socket): A socket object used to send data back to the client
+
+        Returns:
+            response (HTCPCPResponse): a response appropriate for the request
         """
 
         try:
@@ -135,23 +137,17 @@ class HTCPCPServer(object):
 
         except errors.HTCPCPException as e:
             print(e.message)
-            response = HTCPCPResponse(e.code, e.reason_phrase)
-            conn.sendall(str(response).encode())
-            return
+            return HTCPCPResponse(e.code, e.reason_phrase)
 
         except Exception as e:
             print(e)
-            response = HTCPCPResponse(400, "Bad Request")
-            conn.sendall(str(response).encode())
-            return
+            return HTCPCPResponse(400, "Bad Request")
 
         if request.uri == "/":
             alternates = ', '.join("{{\"/{}\" {{type message/teapot}}}}".format(tea) for tea in VALID_TEA_TYPES)
             response_headers = dict()
             response_headers["Alternates"] = alternates
-            response = HTCPCPResponse(300, "Multiple Choices", response_headers=response_headers)
-            conn.sendall(str(response).encode())
-            return
+            return HTCPCPResponse(300, "Multiple Choices", response_headers=response_headers)
         
         try:
             if request.method == "BREW":
@@ -162,10 +158,19 @@ class HTCPCPServer(object):
         
         except errors.HTCPCPException as e:
             print(e.message)
-            response = HTCPCPResponse(e.code, e.reason_phrase)
-            conn.sendall(str(response).encode())
-            return
+            return HTCPCPResponse(e.code, e.reason_phrase)
         
         # request complete successfully, log and return
         logging.info(request.request_line)
+        return response
+
+    def connection_handler(self, request_string, conn):
+        """
+        Handles a new connection, and responds if necessary
+
+        Parameters:
+            request_string (string): the HTCPCP request in string format
+            conn (socket): A socket object used to send data back to the client
+        """
+        response = self.handle_request(request_string)
         conn.sendall(str(response).encode())
