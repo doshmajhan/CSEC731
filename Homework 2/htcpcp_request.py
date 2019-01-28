@@ -186,8 +186,6 @@ class HTCPCPRequest(object):
             return content_type
 
         if content_type != VALID_CONTENT_TYPES[self.type]:
-            print(content_type)
-            print(self.type)
             if self.type == "tea" and content_type == VALID_CONTENT_TYPES["coffee"]:
                 raise errors.ImATeapotError
 

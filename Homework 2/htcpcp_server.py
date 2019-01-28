@@ -114,6 +114,7 @@ class HTCPCPServer(object):
             else:
                 raise errors.InvalidContentType
 
+        # ensure the additions sent in the request are the same as the ones in the current pot
         if Counter(request.additions) != Counter(pot.additions):
             raise errors.UnsupportedAdditions
         
@@ -136,11 +137,9 @@ class HTCPCPServer(object):
             request = self.parse_request(request_string)
 
         except errors.HTCPCPException as e:
-            print(e.message)
             return HTCPCPResponse(e.code, e.reason_phrase)
 
         except Exception as e:
-            print(e)
             return HTCPCPResponse(400, "Bad Request")
 
         if request.uri == "/":
@@ -157,7 +156,6 @@ class HTCPCPServer(object):
                 response = self.handle_get(request)
         
         except errors.HTCPCPException as e:
-            print(e.message)
             return HTCPCPResponse(e.code, e.reason_phrase)
         
         # request complete successfully, log and return
