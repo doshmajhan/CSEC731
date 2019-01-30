@@ -1,0 +1,4 @@
+POST /pot-1 HTCPCP-TEA/1.0
+Content-Type: message/coffee-pot-command
+Accept-Additions: Cream; Skim; Almond; Sugar
+
