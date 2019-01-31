@@ -1,16 +1,56 @@
+import os
 import subprocess
+import errors
 
-class PHP(object):
+class Php(object):
     """
     Wrapper to pass arguments to the `php-cgi` command line tool
 
     Attributes:
+        PHP_CGI (string): the php-cgi executable to use
         method (string): the method used to submit the command
-        content (string): the php content to execute
+        parameters (string): the parameters to pass to the php script
+        script_name (string): the name of the php script to execute
+        environment (dict): a dictonary of key value pairs for the bash environment to execute in
     """
-    def __init__(self, method, content):
+
+    PHP_CGI = "php-cgi"
+
+    def __init__(self, method, script_name, parameters):
+        self.script_name = script_name
+        self.parameters = parameters
         self.method = method
-        self.content = content
+
+        self.environment = dict(os.environ)
+        self.environment["REQUEST_METHOD"] = self.method
+        self.environment["SCRIPT_FILENAME"] = self.script_name
+
+        if self.method == "GET":
+            self.environment["QUERY_STRING"] = self.parameters
+            self.environment["REDIRECT_STATUS"] = "0"
+        elif self.method == "POST":
+            self.environment["REDIRECT_STATUS"] = "1"
+            self.environment["GATEWAY_INTERFACE"] = "CGI/1.1"
+            self.environment["CONTENT_LENGTH"] = str(len(self.parameters))
+            self.environment["CONTENT_TYPE"] = "application/x-www-form-urlencoded"
+        else:
+            raise errors.UnsupportedMethod
 
     def execute(self):
-        pass
+        """
+        Executes the php-cgi command with the premade environment
+        and returns the output
+
+        Returns:
+            output(string): the output of the php-cgi command
+        """
+        process = subprocess.Popen(
+            [self.PHP_CGI],
+            env=self.environment,
+            stdout=subprocess.PIPE,
+            stdin=subprocess.PIPE
+        )
+
+        out, err = process.communicate(str.encode(self.parameters))
+        print(err)
+        return out

@@ -86,8 +86,9 @@ class HTCPCPRequest(object):
             return uri
 
         if uri.count("?") > 0:
-            uri, additions = uri.split("?", 1)
-            self.validate_additions(additions.split("&"))
+            uri, parameters = uri.split("?", 1)
+            self.parameters = parameters
+            self.validate_additions(parameters.split("&"))
         
         parts = uri.split("/")
         pot = parts[1]
