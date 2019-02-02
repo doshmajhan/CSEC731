@@ -5,6 +5,7 @@ import threading
 import errors
 import request
 import htcpcp_request
+import php_request
 from response import Response
 import traceback
 
@@ -76,7 +77,7 @@ class HTTPServer(object):
             if req.content_type == "message/coffee-pot-command" or req.content_type == "message/teapot":
                 response = htcpcp_request.handle_request(req)
             elif req.content_type == "application/x-www-form-urlencoded":
-                pass
+                response = php_request.handle_request(req)
             else:
                 raise errors.InvalidContentType
         
@@ -101,6 +102,4 @@ class HTTPServer(object):
             conn (socket): A socket object used to send data back to the client
         """
         response = self.handle_request(request_string)
-        print(response.response_code)
-        print(response.reason_phrase)
         conn.sendall(str(response).encode())

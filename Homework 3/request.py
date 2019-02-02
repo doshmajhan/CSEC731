@@ -18,7 +18,7 @@ class Request(object):
         self.body = body
 
         if "Content-Type" not in self.headers:
-            self.content_type = "text"
+            self.content_type = "text/plain"
         else:
             self.content_type = self.headers["Content-Type"]
 

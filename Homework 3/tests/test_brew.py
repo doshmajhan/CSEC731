@@ -1,9 +1,8 @@
 from os import listdir
 from os.path import isfile, join
 import socket
-from test_utils import send_request
+from test_utils import send_request, CRLF
 
-CRLF = "\r\n"
 
 def brew_coffee():
     valid_request = "BREW /pot-1 HTCPCP-TEA/1.0{0}" \
@@ -112,7 +111,7 @@ def get_tea_pot():
     assert response.response_code == 418
 
 
-def test_server():
+def tes_server():
     brew_coffee()
     brew_tea()
     get_coffee_pot()

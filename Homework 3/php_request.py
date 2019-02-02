@@ -1,6 +1,8 @@
 import os
 import subprocess
 import errors
+from response import Response
+
 
 class PhpRequest(object):
     """
@@ -16,25 +18,27 @@ class PhpRequest(object):
 
     PHP_CGI = "php-cgi"
 
-    def __init__(self, method, script_name, parameters):
+    def __init__(self, request):
         """
         Parameters:
-            method (string): method of the request
-            script_name (string): name of the php file to execute
-            parameters (string): a string of name value pairs
+            request (Request): a request object containing the parsed PHP request
         """
-        self.script_name = script_name
-        self.parameters = parameters
-        self.method = method
+        # trim leading /
+        self.script_name = request.uri[1:]
+        self.method = request.method
 
         self.environment = dict(os.environ)
         self.environment["REQUEST_METHOD"] = self.method
         self.environment["SCRIPT_FILENAME"] = self.script_name
+        self.environment["SERVER_PROTOCOL"] = "HTTP/1.1"
+        self.environment["REMOTE_HOST"] = "127.0.0.1"
 
         if self.method == "GET":
+            self.parameters = request.query_string
             self.environment["QUERY_STRING"] = self.parameters
             self.environment["REDIRECT_STATUS"] = "0"
         elif self.method == "POST":
+            self.parameters = request.body
             self.environment["REDIRECT_STATUS"] = "1"
             self.environment["GATEWAY_INTERFACE"] = "CGI/1.1"
             self.environment["CONTENT_LENGTH"] = str(len(self.parameters))
@@ -48,7 +52,7 @@ class PhpRequest(object):
         and returns the output
 
         Returns:
-            output(string): the output of the php-cgi command
+            output (string): the output of the php-cgi command
         """
         process = subprocess.Popen(
             [self.PHP_CGI],
@@ -58,5 +62,27 @@ class PhpRequest(object):
         )
 
         out, err = process.communicate(str.encode(self.parameters))
-        print(err)
+        print("PHP stderr: {}".format(err))
         return out
+
+
+####################
+# Static functions #
+####################
+
+def handle_request(request):
+    """
+    Handles a PHP request and returns the proper response
+
+    Parameters:
+        request (Request): the PHP request in Request format
+
+    Returns:
+        response (Response): a 200 OK response with the php execution output as the body
+    """
+    php_req = PhpRequest(request)
+    output = php_req.execute()
+    
+    response_headers = dict()
+    response_headers["Content-Type"] = "text/plain"
+    return Response(200, "OK", response_headers=response_headers, response_body=output)
