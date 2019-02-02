@@ -9,7 +9,7 @@
 
 import argparse
 import logging
-from htcpcp_server import HTCPCPServer
+from http_server import HTTPServer
 
 LOG_FILE = "server.log"
 logging.basicConfig(filename=LOG_FILE, level=logging.DEBUG)
@@ -20,5 +20,5 @@ if __name__ == '__main__':
     parser.add_argument('-l', dest='address', help='The address to listen on', required=True)
     args = parser.parse_args()
 
-    server = HTCPCPServer(args.address, args.port)
+    server = HTTPServer(args.address, args.port)
     server.start()

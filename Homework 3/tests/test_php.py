@@ -1,12 +1,12 @@
 import sys
 sys.path.append("..")
-from php_wrapper import Php
+from php_request import PhpRequest
 
 TEST_FILE = "index.php"
 
 
 def execute_php(method, parameters):
-    php_page = Php(method, TEST_FILE, parameters)
+    php_page = PhpRequest(method, TEST_FILE, parameters)
     return php_page.execute()
 
 def test_get():

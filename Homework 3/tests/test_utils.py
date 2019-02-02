@@ -1,7 +1,7 @@
 import socket
 import sys
 sys.path.append("..")
-from htcpcp_response import HTCPCPResponse
+from response import Response
 
 CRLF = "\r\n"
 HOST = "127.0.0.1"
@@ -57,4 +57,4 @@ def parse_response(response):
     status_code = int(status_line[1])
     reason = status_line[2:]
     
-    return HTCPCPResponse(status_code, reason, response_headers=headers_dict, response_body=response_body)
+    return Response(status_code, reason, response_headers=headers_dict, response_body=response_body)

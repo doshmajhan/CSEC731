@@ -1,4 +1,9 @@
+from collections import Counter
 import errors
+from coffee_pot import CoffeePot
+from tea_pot import TeaPot
+from response import Response
+
 
 VALID_METHODS = ['GET', 'BREW', 'POST', 'WHEN', 'PROPFIND']
 VALID_VERSION = "HTCPCP-TEA/1.0"
@@ -15,6 +20,7 @@ VALID_ADDITIONS = [
     "xylitol", "stevia", "*"
 ]
 VALID_TEA_TYPES = ["peppermint", "black", "green", "earl-grey"]
+BREWING_POTS = list()
 
 class HTCPCPRequest(object):
     """
@@ -25,29 +31,24 @@ class HTCPCPRequest(object):
         headers (dict): a dictionary containing the header names and associated values
         body (string): the body of the request
     """
-    def __init__(self, request_line, headers, body):
-        self.additions = list()
-        self.validate_request_line(request_line)
-        self.headers = self.validate_headers(headers)
-        self.body = body
 
-    def validate_request_line(self, request_line):
+    def __init__(self, request):
         """
-        Validates that the request line has a supported method, a correct uri and correct version
-
         Parameters:
-            request_line (string): the request line of the request
+            request (Request): a request object containing the parsed HTCPCP request
         """
-        self.request_line = request_line
-        
-        try:
-            method, uri, version = request_line.split()
-        except ValueError:
-            raise errors.InvalidURI
+        self.method = self.validate_method(request.method)
+        self.uri = self.validate_uri(request.uri)
+        self.headers = request.headers
+        self.body = request.body
+        self.content_type = self.validate_content_type(request.content_type)
 
-        self.method = self.validate_method(method)
-        self.uri = self.validate_uri(uri)
-        self.version = self.validate_version(version)
+        if request.query_string and self.method == "GET":
+            self.additions = self.validate_additions(request.query_string)
+        elif request.method == "BREW":
+            additions = [a.strip() for a in self.headers["Accept-Additions"].split(";")]
+            self.additions = self.validate_additions(additions)
+            
 
     def validate_method(self, method):
         """
@@ -62,10 +63,6 @@ class HTCPCPRequest(object):
         if method not in VALID_METHODS:
             raise errors.UnsupportedMethod
 
-        # temporary for this assignment
-        if method == "POST":
-            raise errors.InvalidRequestLine
-
         return method
 
     def validate_uri(self, uri):
@@ -79,16 +76,8 @@ class HTCPCPRequest(object):
         Returns:
             uri (string the uri if it has been deemed valid
         """
-        if uri.count("/") == 0:
-            raise errors.InvalidURI
-
         if uri == "/":
             return uri
-
-        if uri.count("?") > 0:
-            uri, parameters = uri.split("?", 1)
-            self.parameters = parameters
-            self.validate_additions(parameters.split("&"))
         
         parts = uri.split("/")
         pot = parts[1]
@@ -143,34 +132,6 @@ class HTCPCPRequest(object):
             raise errors.InvalidVersion
 
         return version
-
-    def validate_headers(self, headers):
-        """
-        Validates the headers are in the correct format
-
-        Paremeters:
-            headers (list): a list of parsed header strings
-
-        Returns:
-            header_dict (dict): a dictionary with header names and their values
-        """
-        header_dict = dict()
-
-        for header in headers:
-            try:
-                name, value = header.split(":")
-                value = value.strip()
-            except ValueError:
-                raise errors.InvalidHeader
-            
-            if name == "Content-Type":
-                header_dict[name] = self.validate_content_type(value)
-
-            if name == "Accept-Additions":
-                additions = [a.strip() for a in value.split(";")]
-                header_dict[name] = self.validate_additions(additions)
-
-        return header_dict
     
     def validate_content_type(self, content_type):
         """
@@ -207,7 +168,101 @@ class HTCPCPRequest(object):
         for a in additions:
             if a.lower() not in VALID_ADDITIONS:
                 raise errors.UnsupportedAdditions
-            
-            self.additions.append(a)
         
         return additions
+
+
+####################
+# Static functions #
+####################
+
+def handle_brew(request):
+    """
+    Handles the specifics of a brew request
+
+    Parameters:
+        request (HTPCPRequest): the recieved request
+
+    Returns:
+        response (Response): the response appriotate for the request
+    """
+    
+    if request.type == "coffee":
+        pot = CoffeePot(request.pot_designator, request.additions)
+
+    else:
+        pot = TeaPot(request.pot_designator, request.additions, request.tea_type)
+    
+    BREWING_POTS.append(pot)
+
+    response_headers = dict()
+    response_headers["Content-Type"] = request.headers["Content-Type"]
+    return Response(200, "OK", response_headers=response_headers)
+
+def handle_get(request):
+    """
+    Gets information for a specific pot if it exists and the request matches
+    
+    Parameters:
+        request (HTPCPRequest): the recieved request
+
+    Returns:
+        response (Response): the response appriotate for the request
+    """
+    pot = next((p for p in BREWING_POTS if str(p) == request.uri), None)
+
+    if not pot:
+        raise errors.BrewNotStarted
+    
+    if request.type != pot.pot_type:
+        if pot.pot_type == "tea":
+            raise errors.ImATeapotError
+        else:
+            raise errors.InvalidContentType
+
+    # ensure the additions sent in the request are the same as the ones in the current pot
+    if Counter(request.additions) != Counter(pot.additions):
+        raise errors.UnsupportedAdditions
+    
+    response_headers = dict()
+    response_headers["Content-Type"] = request.headers["Content-Type"]
+    return Response(200, "OK", response_headers=response_headers)
+
+
+def handle_request(request):
+    """
+    Handles a HTCPCP request and returns the proper response
+
+    Parameters:
+        request (Request): the HTCPCP request in Request format
+
+    Returns:
+        response (Response): a response appropriate for the request
+    """
+
+    try:
+        req = HTCPCPRequest(request)
+
+    except errors.RequestError as e:
+        return Response(e.code, e.reason_phrase)
+
+    except Exception as e:
+        return Response(400, "Bad Request")
+
+    if req.uri == "/":
+        alternates = ', '.join("{{\"/{}\" {{type message/teapot}}}}".format(tea) for tea in VALID_TEA_TYPES)
+        response_headers = dict()
+        response_headers["Alternates"] = alternates
+        return Response(300, "Multiple Choices", response_headers=response_headers)
+    
+    try:
+        if req.method == "BREW":
+            response = handle_brew(request)
+
+        elif req.method == "GET":
+            response = handle_get(request)
+    
+    except errors.RequestError as e:
+        return Response(e.code, e.reason_phrase)
+    
+    return response

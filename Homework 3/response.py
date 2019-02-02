@@ -1,6 +1,6 @@
-class HTCPCPResponse(object):
+class Response(object):
     """
-    Class to represent a response for the HTCPCP protocol
+    Class to represent a HTTP Response
 
     Attributes:
         response_code (int): the HTTP response code

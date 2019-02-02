@@ -2,7 +2,7 @@ import os
 import subprocess
 import errors
 
-class Php(object):
+class PhpRequest(object):
     """
     Wrapper to pass arguments to the `php-cgi` command line tool
 
@@ -17,6 +17,12 @@ class Php(object):
     PHP_CGI = "php-cgi"
 
     def __init__(self, method, script_name, parameters):
+        """
+        Parameters:
+            method (string): method of the request
+            script_name (string): name of the php file to execute
+            parameters (string): a string of name value pairs
+        """
         self.script_name = script_name
         self.parameters = parameters
         self.method = method
