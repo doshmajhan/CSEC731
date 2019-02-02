@@ -63,8 +63,10 @@ class Request(object):
             return uri
 
         if uri.count("?") > 0:
-            uri, parameters = uri.split("?", 1)
-            self.parameters = parameters
+            uri, query_string = uri.split("?", 1)
+            self.query_string = query_string
+        else:
+            self.query_string = None
 
         return uri
 

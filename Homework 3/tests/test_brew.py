@@ -112,7 +112,7 @@ def get_tea_pot():
     assert response.response_code == 418
 
 
-def tes_server():
+def test_server():
     brew_coffee()
     brew_tea()
     get_coffee_pot()

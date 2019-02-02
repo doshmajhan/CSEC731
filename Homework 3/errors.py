@@ -42,6 +42,12 @@ class InvalidVersion(RequestError):
         self.code = 400
         self.reason_phrase = "Bad Request"
 
+class InvalidFormat(RequestError):
+    def __init__(self):
+        self.message = "Invalid Format"
+        self.code = 400
+        self.reason_phrase = "Bad Request"
+
 #########################
 # HTCPCP specifc errors #
 #########################

@@ -6,7 +6,7 @@ import errors
 import request
 import htcpcp_request
 from response import Response
-
+import traceback
 
 CRLF = "\r\n"
 
@@ -64,10 +64,12 @@ class HTTPServer(object):
             req = request.request_from_string(request_string)
 
         except errors.RequestError as e:
+            traceback.print_exc()
             return Response(e.code, e.reason_phrase)
 
         except Exception as e:
-            return Response(400, "Bad Request")
+            traceback.print_exc()
+            return Response(500, "Internal Server Error")
 
         try:
 
@@ -79,9 +81,11 @@ class HTTPServer(object):
                 raise errors.InvalidContentType
         
         except errors.RequestError as e:
+            traceback.print_exc()
             return Response(e.code, e.reason_phrase)
 
         except Exception as e:
+            traceback.print_exc()
             return Response(500, "Internal Server Error")
         
         # request complete successfully, log and return
@@ -97,4 +101,6 @@ class HTTPServer(object):
             conn (socket): A socket object used to send data back to the client
         """
         response = self.handle_request(request_string)
+        print(response.response_code)
+        print(response.reason_phrase)
         conn.sendall(str(response).encode())

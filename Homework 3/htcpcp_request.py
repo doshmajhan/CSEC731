@@ -46,8 +46,7 @@ class HTCPCPRequest(object):
         if request.query_string and self.method == "GET":
             self.additions = self.validate_additions(request.query_string)
         elif request.method == "BREW":
-            additions = [a.strip() for a in self.headers["Accept-Additions"].split(";")]
-            self.additions = self.validate_additions(additions)
+            self.additions = self.validate_additions(self.headers["Accept-Additions"])
             
 
     def validate_method(self, method):
@@ -160,11 +159,18 @@ class HTCPCPRequest(object):
         the Accept-Additions header is supported
 
         Parameters:
-            additions (list): a list strings of additions that was parsed from the request
+            additions (string): an string containing additions either seperated by ; or &
 
         Returns:
             addtions (list): the list of validated additions
         """
+        if additions.count(";") > 0:
+            additions = [a.strip() for a in additions.split(";")]
+        elif additions.count("&") > 0:
+            additions = [a.strip() for a in additions.split("&")]
+        else:
+            raise errors.InvalidFormat
+
         for a in additions:
             if a.lower() not in VALID_ADDITIONS:
                 raise errors.UnsupportedAdditions
@@ -239,30 +245,19 @@ def handle_request(request):
     Returns:
         response (Response): a response appropriate for the request
     """
+    htcpcp_req = HTCPCPRequest(request)
 
-    try:
-        req = HTCPCPRequest(request)
-
-    except errors.RequestError as e:
-        return Response(e.code, e.reason_phrase)
-
-    except Exception as e:
-        return Response(400, "Bad Request")
-
-    if req.uri == "/":
+    if htcpcp_req.uri == "/":
         alternates = ', '.join("{{\"/{}\" {{type message/teapot}}}}".format(tea) for tea in VALID_TEA_TYPES)
         response_headers = dict()
         response_headers["Alternates"] = alternates
         return Response(300, "Multiple Choices", response_headers=response_headers)
     
-    try:
-        if req.method == "BREW":
-            response = handle_brew(request)
+    if htcpcp_req.method == "BREW":
+        response = handle_brew(htcpcp_req)
 
-        elif req.method == "GET":
-            response = handle_get(request)
+    elif htcpcp_req.method == "GET":
+        response = handle_get(htcpcp_req)
     
-    except errors.RequestError as e:
-        return Response(e.code, e.reason_phrase)
     
     return response

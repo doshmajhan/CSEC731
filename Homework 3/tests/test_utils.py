@@ -20,12 +20,12 @@ def send_request(request):
     """
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((HOST, PORT))
-    s.send(request)
+    s.send(request.encode())
     data = s.recv(1000000)
     print(data)
     s.shutdown(1)
     s.close()
-    return parse_response(data)
+    return parse_response(data.decode())
 
 
 def parse_response(response):
@@ -39,6 +39,7 @@ def parse_response(response):
         response (HTCPCPResponse): the HTCPCPResponse object
     """
     headers_dict = dict()
+    print(response)
     response_headers, response_body = response.split(CRLF + CRLF)
     
     try:
