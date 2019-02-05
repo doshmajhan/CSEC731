@@ -15,3 +15,7 @@ INFO:root:GET /www/index.php?test=doshget HTCPCP-TEA/1.0
 INFO:root:POST /www/index.php HTCPCP-TEA/1.0
 INFO:root:GET /www/index.php?test=doshget HTCPCP-TEA/1.0
 INFO:root:POST /www/index.php HTCPCP-TEA/1.0
+INFO:root:GET /www/index.php?test=doshget HTCPCP-TEA/1.0
+INFO:root:POST /www/index.php HTCPCP-TEA/1.0
+INFO:root:GET /www/index.php?test=doshget HTCPCP-TEA/1.0
+INFO:root:POST /www/index.php HTCPCP-TEA/1.0

@@ -3,6 +3,8 @@ import subprocess
 import errors
 from response import Response
 
+CRLF = "\r\n"
+
 
 class PhpRequest(object):
     """
@@ -82,7 +84,8 @@ def handle_request(request):
     """
     php_req = PhpRequest(request)
     output = php_req.execute()
-    
+    headers, body = output.decode().split(CRLF + CRLF)
+
     response_headers = dict()
     response_headers["Content-Type"] = "text/plain"
-    return Response(200, "OK", response_headers=response_headers, response_body=output)
+    return Response(200, "OK", response_headers=response_headers, response_body=body)
