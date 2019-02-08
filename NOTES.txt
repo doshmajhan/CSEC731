@@ -1,0 +1,342 @@
+==========
+= WEEK 1 =
+==========
+
+True/False: The web was designed to handle secure information.
+    False
+
+What is the broad goal of HTTP?
+    To facilitate the transfer of files
+
+What three things are included at the beginning of an HTTP request?
+    The HTTP method, the file being requested, and the version of the protocol being used in the request
+
+What is the main difference between static content and dynamic content?
+    A dynamic content request causes the server to execute code and return the output of that code to the client
+
+Why do security experts need to be aware of web server internals?
+    Vulnerabilities in web server internals often permit access to the server operating system
+
+What is a request for comment, or RFC?
+    A document that defines a standard or best practice
+
+How does the HTTP RFC describe HTTP?
+    Using a context-free grammar
+
+What are the three main parts of HTTP requests/responses?
+    The request-line/status line, the headers, and the message body
+
+What is the difference between a 403 response code and a 401 response code?
+    A 401 response code indicates that access control is stopping the user from accessing a resource 
+    while a 403 response code indicates that access control is stopping the server from accessing a resource
+
+Why must encryption be used in conjunction with basic HTTP authorization?
+    Basic HTTP authorization only base64 encodes credentials, it doesn’t encrypt them
+
+What is parsing?
+    The process of determining if some input follows the rules of a language.
+
+What is a terminal symbol in a context-free grammar?
+    A symbol that appears in a string
+
+What is a non-terminal symbol in a context-free grammar?
+    Part of the deep structure of a string’s syntax that does not appear in the final string
+
+What is a production rule?
+    A rule for replacing a non-terminal with a combination of terminal and non-terminal symbols
+
+How do non-terminals relate to parser implementations?
+    Generally, there is one function in the parser for processing each non-terminal symbol
+
+What is the formal cause of a syntax error?
+    A production rule was either completely (as in the case of a missing operand) or 
+    partially not followed (as in the case of a missing close parenthesis)
+
+==========
+= WEEK 2 =
+==========
+
+What layers of the OSI model do sockets belong in?
+    They are a programmable interface between OSI layers 4 and layers 5.
+
+How is data sent across Python sockets?
+    As a sequence of ASCII characters that Python processes as a string.
+
+What data needs to be provided to the Python socket constructor?
+    An IP address (string) and a port (integer) as a Python tuple.
+
+What functions is used to force a Python socket to accept incoming connections?
+    Bind and listen
+
+What does the function called named 'accept' do?
+    It is a blocking call that causes the server to wait for new connections.
+
+How do you encrypt using SSL/TLS in Python?.
+    By creating an ssl context object that wraps around the socket
+
+What classic goals of information security are undermined by man-in-the-middle attacks?
+    Confidentiality and integrity.
+
+What is the primary defense against man-in-the-middle attacks?
+    Encryption
+
+True/False: Encryption prevents man-in-the-middle attacks by stopping attackers from intercepting HTTP requests.
+    False. Attackers can still intercept requests. They cannot read or modify the requests.
+
+What classic information security goal is undermined by denial of service attacks?
+    Availability
+
+What is reflection in the context of denial-of-service attacks?
+    Reflection is when the attacker can send an instruction to some un-compromised host 
+    and cause that host to send network traffic to the intended victim.
+
+What is amplification in the context of denial-of-service attacks?
+    When the attacker can send one unit of traffic to a reflection point and cause 
+    more than one unit of traffic to be sent to the actual intended victim.
+
+What is the relationship between SSL/TLS?
+    TLS versions are just new versions of SSL under a new name.
+
+True/False: HTTPS traffic is encrypted using the public key in a web server's HTTPS certificate?
+    False. A temporary key is generated and used to encrypt the traffic.
+
+Who are the trust anchosr in public key infrastructure?
+    Root certificate authorities
+
+What part of the SSL/TLS handshake contains the specific algorithm that will be used to encrypt the connection?
+    Server HELLO
+
+What are two common reasons an organization may implement TLS termination?
+    1) to offload the work of encrypting traffic onto a more powerful server and 2) to inspect traffic for attacks
+
+What was the impact of web servers not validating the length of strings used in SSL/TLS heartbeat communications?
+    A memory over-read that leaked the private keys
+
+How do web application firewalls determine what traffic to block?
+    They block HTTP requests that match a regular expression which describes a malicious request.
+
+Why is using a co-located web application firewall riskier than using a web-application firewall proxy?
+    An exploitable vulnerability in the WAF would provide access to the web-server.
+
+What attack does a load-balancer assist with?
+    Denial of Service
+
+What attacks can CDNs assist with?
+    Denial of service and application-level attacks, since CDNs often make use of WAFs.
+
+What additional benefit does making use of a CDN provide?
+    Risk is off-loaded to a third party
+
+==========
+= WEEK 3 =
+==========
+
+Where are Apache configurations stored?
+    /etc/apache2
+
+What configuration files would need to be changed to make Apache listen on a different IP/port?
+    ports.conf and your virtual host configuration files in /etc/apache2/sites-enabled
+
+What security controls require modifying Apache configurations?
+    SSL/TLS and co-located web application firewalls.
+
+What is a site's root directory and where is that setting found?
+    The site's root directory is the location on the file system where files to 
+    be served are found and it's located in the virtual host configuration file.
+
+What is the primary configuration file for MySQL?
+    /etc/mysql/mysql.conf.d/mysqld.cnf
+
+In the current default install of MySQL on Ubuntu 18.04, who can login as the root MySQL user?
+    Sudoers of the Linux OS
+
+What is the relationship between database servers and databases?
+    One to many. One database server may host many databases
+
+What built in database tables are used for database management?
+    The mysql and information schema databases.
+
+What table are MySQL user credentials stored in?
+    mysql.users
+
+What are the two pieces of information needed to identify a particular MySQL user?
+    The username and the host user can connect from.
+
+What does CRUD mean?
+    Create, Read, Update, Delete
+
+What SQL operations are used for 'create' functionality?
+    Create database, create table, and insert
+
+What SQL operation is used for 'read' functionality?
+    Select
+
+What SQL operation is used for 'update' functionality?
+    Update
+
+What SQL operation is used for 'delete' functionality?
+    Delete (from) and drop (which wasn't discussed in the video)
+
+What keyword is used to restrict the number of records that are read/updated/deleted?
+    where, as in where userid='1234'
+
+What is the problematic pattern in a PHP script leading to an SQL injection vulnerability?
+    Building a database query to execute by concatenating user input with database commands without validating user input
+
+The following query is vulnerable to SQL injection. What character would you need to begin the SQL 
+Injection with? select first, last from persons where last='$input'
+    A single quotation mark
+
+The following query is vulnerable to SQL injection. What character would you need to begin 
+the SQL Injection with? select first, last from persons where last="$input"
+    A double quotation mark
+
+The following query is vulnerable to SQL injection. What character would you need to begin the
+SQL Injection with, assuming ID is a numerical field? select first, last from persons where id=$input
+    A number
+
+Why is the type of cross-site scripting presented described as "reflected"?
+    Because the attacker tricks the victim into making an HTTP request containing the malicious 
+    javascript which the server sends back to the victim for execution. The javascript "bounces" off the server.
+
+Where does the malicious script execute?
+    On the victim's computer, not on the server
+
+How could a web-server administrator identify that someone is exploiting a
+cross-site scripting vulnerability in the processing of a GET parameter?
+    GET parameters will appear in server-logs. The administrator could search their Apache server logs.
+
+How could XSS be defeated?
+    There are two ways. First, using secure headers discussed in week 1. Second, 
+    by sanitizing all output from the web-sever to make sure it does not contain unintended Javascript.
+
+What artifact, if acquired, would let an attacker impersonate a user to another website?
+    A cookie containing a session ID.
+
+Which of the two vulnerabilities exploit directly enabled the attacker to steal the session cookie?
+    Cross-site Scripting
+
+Why was Javascript injected into the ID field?
+    Because that field was echoed back without sanitization
+
+What would the attacker have to do in order to gain access to the session token?
+    Send the session token as data in an HTTP request as in the case of the Javascript redirect used in this video.
+
+Could SQL injection have been used to leverage cross-site scripting in this particular attack?
+    No; none of the SQL results were ever printed to the screen.
+
+What type of cross-site scripting was leveraged here?
+    Reflected XSS
+
+What part of the CIA triad does directory traversal undermine?
+    C - Confidentiality
+
+What is the cause of directory traversal vulnerabilities?
+    A server-side scripts that reads the contents of a file without validating the file path.
+
+What files can be accessed through local file inclusion?
+    Files stored on the webserver
+
+What type of file inclusion is possible given the default PHP configuration?
+    Local File inclusion
+
+What PHP setting must be changed to permit remote file inclusion?
+    allow_url_include
+
+In remote file inclusion, where is the backdoor located?
+    The attacker's webserver
+
+In remote file inclusion, where is the backdoor executed?
+    The victim webserver
+
+What command line tool should be used to process HTTP requests that invoke PHP?
+    php-cgi
+
+How is GET data passed to php-cgi?
+    As command-line arguments
+
+How is header data passed to php-cgi?
+    As environment variables
+
+How is data contained in POST requests passed to php-cgi?
+    Via stdin. Using pipes are easiest.
+
+What well-known vulnerability in Apache was due to the way in which headers were handed off to bash as environment variables for further processing?
+    Shellshock
+
+==========
+= WEEK 4 =
+==========
+
+When looking to extract information from records in other database tables, why do you have to
+find out how many columns are being returned from the database query?
+    Because you need to use the union keyword to pull from other tables and union requires you to add the same number of fields as the original query
+
+What database table and fields contain credentials for logging in to MySQL?
+    The mysql.user and the user/authentication_string fields.
+
+If MySQL is on the same host as Apache, how might an attacker pivot from SQL Injection into a full compromise?
+    By writing a PHP backdoor into a file that can either be accessed directly (if the web root can be written to by MySQL)
+    or into a location where it can be paired with local file inclusion.
+
+A PHP script involves a executing a bash utility on data provided by the user. What symbols may be used to inject your own bash command?
+    ; for sequencing commands.
+    && for joining commands.
+    | for piping the output of one command to another.
+
+What user account will bash commands injected through a command injection vulnerability run under?
+    The service account of the web-server, such as www-data.
+
+What is the recommended mechanism for defeating SQL Injection attacks?
+    Prepared statements
+
+Why are prepared statements recommended?
+    When the value is substituted into the query string, the MySQL preparation tools automatically
+    sanitize the input for symbols that have special meaning to MySQL.
+
+What function is used to sanitize input and prevent cross-site scripting?
+    htmlspecialchars
+
+Why should output also be sanitized?
+    As a defense-in-depth control. If an attacker is able to bypass input validation and inject
+    malicious content that has special meaning to web browsers, the output validation may catch and remove it.
+
+What function is used to prevent command injection?
+    escapeshellcmd
+
+What is the motivation to used existing tools for input validation rather than implementing your own?
+    Catching all symbols that have special meaning can be very challenging. This offload development time 
+    onto the developers of the tools and off of your web development team, reducing development time. For example, 
+    if a new injection technique is found, your development needs to only patch their libraries rather than write 
+    their own regular expressions for detection.
+
+What is the agent responsible for making access control decisions if access control is handled with .htaccess files?
+    The Apache web server
+
+What are two major security considerations for deploying access control with .htaccess?
+    1) Basic authentication is the most form of .htaccess, which is not secure; Https needs to be deployed. 
+    2) .htpasswd files should not be located in a www directory as it would permit users accessing the website to download the credentials.
+
+How do password hashes fit into the security model of a web application?
+    They're a defense in depth control. Passwords should be hashed so that, if the database is 
+    compromised through some other exploit (like SQL injection), the credentials cannot be recovered
+
+Why entity is responsible for making access control decisions about credentials stored in a MySQL database?
+    The web application's server-side scripting
+
+What entity makes access control decisions if LDAP is deployed?
+    The LDAP server (or domain controller, if AD is used)
+
+What additional security consideration should be taken when using LDAP for authenticating web application users?
+    LDAP's default configuration is not encrypted. LDAPS needs to be used to encrypt communication between the web application and the LDAP server.
+
+
+
+
+
+
+
+
+
+
+
