@@ -1,0 +1,10 @@
+Jenkins:
+    URL: 3.17.75.164:8080 (jenkins.doshmajhan.com:8080)
+    SSH key for instance: Clark.pem
+    Credentials to log into jenkins web console: hiro:csec731spring!
+
+Github (I made a new account on Github.com):
+    Credentials: hirovillian:csecweb2017!
+    Repository: snowcrash
+
+
