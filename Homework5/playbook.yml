@@ -50,37 +50,46 @@
           dest: /tmp
 
       # SETUP DOCKER CONTAINERS
-      - name: make ubuntu container
+      - name: Create docker network
+        docker_network:
+          name: csec731
+          ipam_options:
+            subnet: "172.1.1.0/24"
+            gateway: "172.1.1.1"
+            iprange: "172.1.1.0/24"
+          
+      - name: make webserver image
         docker_image:
-          name: webserver
+          name: ubuntu-webserver7
           path: /tmp/docker
           tag: latest
 
       - name: pull modsecurity image
         docker_image:
           name: owasp/modsecurity-crs
-          tag: latest
-      
+          tag: v3.1
+
       - name: create ubuntu container
         docker_container:
-          name: webserver-container
-          image: webserver
+          name: webserver
+          image: ubuntu-webserver7:latest
           ports:
-            - "80:8080"
-            - "443:8443"
+            - "8080:80"
+            - "8443:443"
           networks:
-            - name: main
+            - name: csec731
               ipv4_address: "172.1.1.100"
       
       - name: create modsec container
         docker_container:
           name: modsecurity
-          image: owasp/modsecurity:latest
+          image: owasp/modsecurity-crs:v3.1
           ports:
             - "80:80"
           networks:
-            - name: main
+            - name: csec731
               ipv4_address: "172.1.1.101"
           env:
-            PROXY: 1
+            PROXY: "1"
             UPSTREAM: "172.1.1.100"
+            
