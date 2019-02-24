@@ -1,0 +1,20 @@
+[Unit]
+Description=modsec service
+Requires=network-online.target docker.service
+After=network-online.target docker.service
+[Service]
+ExecStop=/usr/bin/docker stop %p
+ExecStartPre=-/usr/bin/docker rm %p
+Restart=on-failure
+RestartSec=30
+TimeoutStartSec=0
+TimeoutStopSec=0
+ExecStart=/usr/bin/docker run --name %p \
+    --net="csec731" \
+    --ip="172.1.1.101" \
+    -p 80:80 \
+    -e PROXY="1" \
+    -e UPSTREAM="172.1.1.100" \
+    owasp/modsecurity-crs:v3.1
+[Install]
+WantedBy=multi-user.target

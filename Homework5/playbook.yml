@@ -1,10 +1,6 @@
 ---
 - hosts: all
   become: True
-  vars:
-    ansible_ssh_private_key_file: ~/.doc/bigone.pem
-    ansible_ssh_common_args: '-v -o StrictHostKeyChecking=no'
-
 
   tasks:
       # DEPENDENCIES
@@ -44,7 +40,7 @@
         pip:
           name: docker
 
-      - name: copy docker file and php script over
+      - name: copy extra files for docker containers over
         copy:
           src: docker
           dest: /tmp
@@ -69,27 +65,24 @@
           name: owasp/modsecurity-crs
           tag: v3.1
 
-      - name: create ubuntu container
-        docker_container:
-          name: webserver
-          image: ubuntu-webserver:latest
-          ports:
-            - "8080:80"
-            - "8443:443"
-          networks:
-            - name: csec731
-              ipv4_address: "172.1.1.100"
+      - name: copy webserver service file
+        copy:
+          src: docker/webserver.service
+          dest: /lib/systemd/system
+
+      - name: copy modsec service file
+        copy:
+          src: docker/modsec.service
+          dest: /lib/systemd/system
       
-      - name: create modsec container
-        docker_container:
-          name: modsecurity
-          image: owasp/modsecurity-crs:v3.1
-          ports:
-            - "80:80"
-          networks:
-            - name: csec731
-              ipv4_address: "172.1.1.101"
-          env:
-            PROXY: "1"
-            UPSTREAM: "172.1.1.100"
-            
+      - name: enable webserver service file
+        systemd:
+          name: webserver
+          state: started
+          enabled: yes
+
+      - name: enable modsec service file
+        systemd:
+          name: modsec
+          state: started
+          enabled: yes
