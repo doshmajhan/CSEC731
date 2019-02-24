@@ -60,7 +60,7 @@
           
       - name: make webserver image
         docker_image:
-          name: ubuntu-webserver7
+          name: ubuntu-webserver
           path: /tmp/docker
           tag: latest
 
@@ -72,7 +72,7 @@
       - name: create ubuntu container
         docker_container:
           name: webserver
-          image: ubuntu-webserver7:latest
+          image: ubuntu-webserver:latest
           ports:
             - "8080:80"
             - "8443:443"

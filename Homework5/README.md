@@ -1,0 +1,2 @@
+Run playbook with `ansible-playbook playbook.yml -u ssh_username`
+The assumption is /etc/ansible/hosts contains an entry under [all] that has the IP of the server to connect to and that the SSH key is correctly configured

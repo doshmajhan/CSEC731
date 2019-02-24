@@ -1,1 +1,1 @@
-<?php echo “Hello “ . $_GET[‘name’]; ?>
+<?php echo "Hello " . $_GET['name']; ?>
